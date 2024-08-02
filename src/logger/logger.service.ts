@@ -13,15 +13,19 @@ export class LoggerService extends ConsoleLogger {
     }).format(new Date())}\t${entry}\n`;
 
     const dirPath = path.join(__dirname, '..', '..', 'log');
+    const filePath = path.join(dirPath, 'logger.txt');
+
     try {
       if (!fs.existsSync(dirPath)) {
         await fsPromises.mkdir(dirPath);
+        await fsPromises.writeFile(filePath, '');
       }
 
-      await fsPromises.appendFile(
-        path.join(dirPath, `${new Date().toString()}.txt`),
-        formattedEntry,
-      );
+      if (!fs.existsSync(filePath)) {
+        await fsPromises.writeFile(filePath, '');
+      }
+
+      await fsPromises.appendFile(filePath, formattedEntry);
     } catch (e) {
       console.error(e);
     }
