@@ -9,11 +9,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('signin')
   signin(@Body() dto: AuthDto) {
-    this.authService.signin(dto);
+    return this.authService.signin(dto);
   }
 
   @Post('signup')
   signup(@Body() dto: AuthDto) {
-    this.authService.signup(dto);
+    return this.authService.signup(dto);
   }
 }
