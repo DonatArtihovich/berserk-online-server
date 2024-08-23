@@ -1,6 +1,14 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { AuthDto } from './dto';
 import { AuthService } from './auth.service';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -8,12 +16,35 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('signin')
-  signin(@Body() dto: AuthDto) {
-    return this.authService.signin(dto);
+  async signin(
+    @Body() dto: AuthDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { access_token } = await this.authService.signin(dto);
+    response.cookie('token', access_token, {
+      expires: new Date(Date.now() + 3600000),
+      httpOnly: true,
+    });
+    return {};
   }
 
   @Post('signup')
-  signup(@Body() dto: AuthDto) {
-    return this.authService.signup(dto);
+  async signup(
+    @Body() dto: AuthDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { access_token } = await this.authService.signup(dto);
+    response.cookie('token', access_token, {
+      expires: new Date(Date.now() + 3600000),
+      httpOnly: true,
+    });
+    return {};
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('logout')
+  logout(@Res({ passthrough: true }) response: Response) {
+    response.cookie('token', '', { expires: new Date(Date.now()) });
+    return {};
   }
 }
